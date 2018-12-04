@@ -11,7 +11,8 @@ class App extends React.Component {
     this.state = {
       data: [],
       selected: undefined,
-      favorites: {}
+      favorites: {},
+      showFavoritesOnly: false
     };
   }
 
@@ -43,7 +44,9 @@ class App extends React.Component {
     const data = images.map((image, i) => {
       const { id, url } = image;
       const fact = facts[i].fact;
-      return { id, url, fact };
+      let lastWord = fact.split(" ");
+      lastWord = lastWord[lastWord.length - 1];
+      return { id, url, fact, lastWord };
     });
 
     this.setState({ data });
@@ -63,18 +66,59 @@ class App extends React.Component {
     this.setState({ favorites });
   };
 
+  handleFavoriteFilter = showFavoritesOnly => {
+    this.setState({ showFavoritesOnly });
+  };
+
+  handleSortAZ = () => {
+    const { data } = this.state;
+    const sortedData = data.sort((a, b) => {
+      const lastWordA = a.lastWord.toUpperCase();
+      const lastWordB = b.lastWord.toUpperCase();
+      if (lastWordA < lastWordB) {
+        return 1;
+      }
+      if (lastWordA > lastWordB) {
+        return -1;
+      }
+      return 0;
+    });
+    this.setState({ data: sortedData });
+  };
+
+  handleSortZA = () => {
+    const { data } = this.state;
+    const sortedData = data.sort((a, b) => {
+      const lastWordA = a.lastWord.toUpperCase();
+      const lastWordB = b.lastWord.toUpperCase();
+      if (lastWordA < lastWordB) {
+        return -1;
+      }
+      if (lastWordA > lastWordB) {
+        return 1;
+      }
+      return 0;
+    });
+    this.setState({ data: sortedData });
+  };
+
   render() {
-    const { data, favorites, selected } = this.state;
+    const { data, favorites, selected, showFavoritesOnly } = this.state;
     return (
       <div className="app">
         <Navigation />
-        <Filter />
+        <Filter
+          onFavoriteFilter={this.handleFavoriteFilter}
+          onSortAZ={this.handleSortAZ}
+          onSortZA={this.handleSortZA}
+        />
         <CatsContainer
           data={data}
           onCardClick={this.handleCardClick}
           onFavoriteClick={this.handleFavoriteClick}
           selected={selected}
           favorites={favorites}
+          showFavoritesOnly={showFavoritesOnly}
         />
       </div>
     );
