@@ -117,6 +117,11 @@ class App extends React.Component {
     this.setState({ data: sortedData });
   };
 
+  handleClearCache = () => {
+    delete localStorage.catData;
+    delete localStorage.favoritesData;
+  };
+
   render() {
     const { data, favorites, selected, showFavoritesOnly } = this.state;
     return (
@@ -126,6 +131,7 @@ class App extends React.Component {
           onFavoriteFilter={this.handleFavoriteFilter}
           onSortAZ={this.handleSortAZ}
           onSortZA={this.handleSortZA}
+          onClearCache={this.handleClearCache}
         />
         <CatsContainer
           data={data}

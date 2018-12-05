@@ -39,6 +39,11 @@ class Filter extends React.Component {
             All
           </span>
         </div>
+        <div className="filter">
+          <span className="filter-button" onClick={this.props.onClearCache}>
+            Clear Cache
+          </span>
+        </div>
       </div>
     );
   }
