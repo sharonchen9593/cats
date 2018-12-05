@@ -59,7 +59,6 @@ class App extends React.Component {
         )
       ]);
 
-      // nullcheck fetchimage and fetchfacts
       const [images, facts] = await Promise.all([
         fetchImagesResult.json(),
         fetchFactsResult.json()
@@ -67,7 +66,7 @@ class App extends React.Component {
 
       this.mergeCatData(images, facts.data || []);
     } catch (e) {
-      alert(`Error when parsing favoritesData: ${e}`);
+      alert(`Error when fetching data: ${e}`);
     }
   };
 
