@@ -17,10 +17,24 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    const catImages = this.getCatData();
+    this.getCatData();
   }
 
-  getCatData = async () => {
+  getCatData = () => {
+    if (localStorage.catData) {
+      const data = JSON.parse(localStorage.catData);
+      this.setState({ data });
+    } else {
+      this.fetchCatData();
+    }
+
+    if (localStorage.favoritesData) {
+      const favorites = JSON.parse(localStorage.favoritesData);
+      this.setState({ favorites });
+    }
+  };
+
+  fetchCatData = async () => {
     try {
       const fetchImagesResult = await fetch(
         "https://cors-anywhere.herokuapp.com/http://thecatapi.com/api/images/get?format=json&results_per_page=25"
@@ -48,7 +62,7 @@ class App extends React.Component {
       lastWord = lastWord[lastWord.length - 1];
       return { id, url, fact, lastWord };
     });
-
+    localStorage.catData = JSON.stringify(data);
     this.setState({ data });
   };
 
@@ -63,6 +77,7 @@ class App extends React.Component {
     } else {
       favorites[id] = true;
     }
+    localStorage.favoritesData = JSON.stringify(favorites);
     this.setState({ favorites });
   };
 
@@ -76,10 +91,10 @@ class App extends React.Component {
       const lastWordA = a.lastWord.toUpperCase();
       const lastWordB = b.lastWord.toUpperCase();
       if (lastWordA < lastWordB) {
-        return 1;
+        return -1;
       }
       if (lastWordA > lastWordB) {
-        return -1;
+        return 1;
       }
       return 0;
     });
@@ -92,10 +107,10 @@ class App extends React.Component {
       const lastWordA = a.lastWord.toUpperCase();
       const lastWordB = b.lastWord.toUpperCase();
       if (lastWordA < lastWordB) {
-        return -1;
+        return 1;
       }
       if (lastWordA > lastWordB) {
-        return 1;
+        return -1;
       }
       return 0;
     });

@@ -1,0 +1,10 @@
+.filter-button {
+  padding: 10px;
+  color: blue;
+  cursor: pointer;
+}
+
+.filter {
+  text-align: center;
+  padding: 10px;
+}

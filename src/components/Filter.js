@@ -1,4 +1,5 @@
 import React from "react";
+import "./styles/filter.css";
 
 class Filter extends React.Component {
   handleFavoritesClick = () => {
@@ -18,13 +19,25 @@ class Filter extends React.Component {
   render() {
     return (
       <div>
-        <div>
-          <span onClick={this.props.onSortAZ}>A-Z</span> |{" "}
-          <span onClick={this.props.onSortZA}>Z-A</span>
+        <div className="filter">
+          Sort:
+          <span className="filter-button" onClick={this.props.onSortAZ}>
+            A-Z
+          </span>
+          |
+          <span className="filter-button" onClick={this.props.onSortZA}>
+            Z-A
+          </span>
         </div>
-        <div>
-          <span onClick={this.handleFavoritesClick}>Favorites</span> |{" "}
-          <span onClick={this.handleAllClick}>All</span>
+        <div className="filter">
+          Filter:
+          <span className="filter-button" onClick={this.handleFavoritesClick}>
+            Favorites
+          </span>
+          |
+          <span className="filter-button" onClick={this.handleAllClick}>
+            All
+          </span>
         </div>
       </div>
     );

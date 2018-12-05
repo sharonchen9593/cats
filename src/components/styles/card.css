@@ -1,6 +1,7 @@
 .cats-container {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .card {
@@ -11,10 +12,17 @@
   margin: 10px;
   opacity: 0.5;
   outline: none;
+  transition: opacity 300ms;
 }
 
 .card-selected {
   opacity: 1;
+  transition: opacity 300ms;
+}
+
+.card-selected:focus {
+  box-shadow: 1px 1px 5px 2px #cbcbcb;
+  transition: box-shadow 300ms;
 }
 
 .card-image {
