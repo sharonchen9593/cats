@@ -1,52 +1,58 @@
 import React from "react";
+import PropTypes from "prop-types";
 import "./styles/filter.css";
 
-class Filter extends React.Component {
-  handleFavoritesClick = () => {
-    const { onFavoriteFilter } = this.props;
+const propTypes = {
+  onClearCache: PropTypes.func,
+  onFavoriteFilter: PropTypes.func,
+  onSortAZ: PropTypes.func,
+  onSortZA: PropTypes.func
+};
+
+const Filter = ({ onClearCache, onFavoriteFilter, onSortAZ, onSortZA }) => {
+  const handleFavoritesClick = () => {
     if (onFavoriteFilter) {
       onFavoriteFilter(true);
     }
   };
 
-  handleAllClick = () => {
-    const { onFavoriteFilter } = this.props;
+  const handleAllClick = () => {
     if (onFavoriteFilter) {
       onFavoriteFilter(false);
     }
   };
 
-  render() {
-    return (
-      <div>
-        <div className="filter">
-          Sort:
-          <span className="filter-button" onClick={this.props.onSortAZ}>
-            A-Z
-          </span>
-          |
-          <span className="filter-button" onClick={this.props.onSortZA}>
-            Z-A
-          </span>
-        </div>
-        <div className="filter">
-          Filter:
-          <span className="filter-button" onClick={this.handleFavoritesClick}>
-            Favorites
-          </span>
-          |
-          <span className="filter-button" onClick={this.handleAllClick}>
-            All
-          </span>
-        </div>
-        <div className="filter">
-          <span className="filter-button" onClick={this.props.onClearCache}>
-            Clear Cache
-          </span>
-        </div>
+  return (
+    <div>
+      <div className="filter">
+        Sort:
+        <span className="filter-button" onClick={onSortAZ}>
+          A-Z
+        </span>
+        |
+        <span className="filter-button" onClick={onSortZA}>
+          Z-A
+        </span>
       </div>
-    );
-  }
-}
+      <div className="filter">
+        Filter:
+        <span className="filter-button" onClick={handleFavoritesClick}>
+          Favorites
+        </span>
+        |
+        <span className="filter-button" onClick={handleAllClick}>
+          All
+        </span>
+      </div>
+      <div className="filter">
+        <span className="filter-button" onClick={onClearCache}>
+          Clear Cache
+        </span>
+      </div>
+    </div>
+  );
+};
+
+Filter.propTypes = propTypes;
 
 export default Filter;

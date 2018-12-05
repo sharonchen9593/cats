@@ -1,44 +1,52 @@
 import React from "react";
+import PropTypes from "prop-types";
 import Card from "./Card";
 import "./styles/card.css";
 
-class CatsContainer extends React.Component {
-  renderCards = () => {
-    const {
-      data,
-      selected,
-      onCardClick,
-      onFavoriteClick,
-      favorites,
-      showFavoritesOnly
-    } = this.props;
+const propTypes = {
+  data: PropTypes.arrayOf(PropTypes.object),
+  favorites: PropTypes.objectOf(PropTypes.bool),
+  onCardClick: PropTypes.func,
+  onFavoriteClick: PropTypes.func,
+  selected: PropTypes.string,
+  url: PropTypes.string
+};
+
+const CatsContainer = ({
+  data,
+  favorites,
+  onCardClick,
+  onFavoriteClick,
+  selected,
+  showFavoritesOnly
+}) => {
+  const renderCards = () => {
     return data
       .filter(cat => {
         if (showFavoritesOnly) {
           return favorites[cat.id];
-        } else {
-          return true;
         }
+        return true;
       })
       .map(cat => {
         return (
           <Card
-            key={cat.id}
-            id={cat.id}
-            url={cat.url}
             fact={cat.fact}
+            favorite={favorites[cat.id]}
+            id={cat.id}
+            key={cat.id}
             onClick={onCardClick}
             onFavoriteClick={onFavoriteClick}
             selected={!selected || selected === cat.id}
-            favorite={favorites[cat.id]}
+            url={cat.url}
           />
         );
       });
   };
 
-  render() {
-    return <div className="cats-container">{this.renderCards()}</div>;
-  }
-}
+  return <div className="cats-container">{renderCards()}</div>;
+};
+
+CatsContainer.propTypes = propTypes;
 
 export default CatsContainer;

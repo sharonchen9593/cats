@@ -2,6 +2,8 @@ import React from "react";
 import Navigation from "./Navigation";
 import Filter from "./Filter";
 import CatsContainer from "./CatsContainer";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import "./styles/app.css";
 import "babel-polyfill";
 
@@ -10,8 +12,9 @@ class App extends React.Component {
     super(props);
     this.state = {
       data: [],
-      selected: undefined,
       favorites: {},
+      isLoading: true,
+      selected: undefined,
       showFavoritesOnly: false
     };
   }
@@ -21,40 +24,54 @@ class App extends React.Component {
   }
 
   getCatData = () => {
+    let data = [];
+    let favorites = {};
     if (localStorage.catData) {
-      const data = JSON.parse(localStorage.catData);
-      this.setState({ data });
+      try {
+        data = JSON.parse(localStorage.catData);
+      } catch (e) {
+        alert(`Error when parsing catData: ${e}`);
+      }
     } else {
       this.fetchCatData();
+      return;
     }
 
     if (localStorage.favoritesData) {
-      const favorites = JSON.parse(localStorage.favoritesData);
-      this.setState({ favorites });
+      try {
+        favorites = JSON.parse(localStorage.favoritesData);
+      } catch (e) {
+        alert(`Error when parsing favoritesData: ${e}`);
+      }
     }
+
+    this.setState({ data, favorites, isLoading: false });
   };
 
   fetchCatData = async () => {
     try {
-      const fetchImagesResult = await fetch(
-        "https://cors-anywhere.herokuapp.com/http://thecatapi.com/api/images/get?format=json&results_per_page=25"
-      );
+      const [fetchImagesResult, fetchFactsResult] = await Promise.all([
+        fetch(
+          "https://cors-anywhere.herokuapp.com/http://thecatapi.com/api/images/get?format=json&results_per_page=25"
+        ),
+        fetch(
+          "https://cors-anywhere.herokuapp.com/https://catfact.ninja/facts?limit=25"
+        )
+      ]);
 
-      const images = await fetchImagesResult.json();
+      // nullcheck fetchimage and fetchfacts
+      const [images, facts] = await Promise.all([
+        fetchImagesResult.json(),
+        fetchFactsResult.json()
+      ]);
 
-      const fetchFactsResult = await fetch(
-        "https://cors-anywhere.herokuapp.com/https://catfact.ninja/facts?limit=25"
-      );
-
-      const facts = await fetchFactsResult.json();
-
-      this.mergeCataData(images, facts.data);
+      this.mergeCatData(images, facts.data || []);
     } catch (e) {
-      console.log(e);
+      alert(`Error when parsing favoritesData: ${e}`);
     }
   };
 
-  mergeCataData = (images, facts) => {
+  mergeCatData = (images, facts) => {
     const data = images.map((image, i) => {
       const { id, url } = image;
       const fact = facts[i].fact;
@@ -62,8 +79,12 @@ class App extends React.Component {
       lastWord = lastWord[lastWord.length - 1];
       return { id, url, fact, lastWord };
     });
-    localStorage.catData = JSON.stringify(data);
-    this.setState({ data });
+    try {
+      localStorage.catData = JSON.stringify(data);
+      this.setState({ data, isLoading: false });
+    } catch (e) {
+      alert(`Error when stringifying catData: ${e}`);
+    }
   };
 
   handleCardClick = id => {
@@ -72,31 +93,36 @@ class App extends React.Component {
 
   handleFavoriteClick = id => {
     const favorites = Object.assign({}, this.state.favorites);
-    if (favorites[id]) {
-      favorites[id] = false;
-    } else {
-      favorites[id] = true;
+    favorites[id] = !favorites[id];
+
+    try {
+      localStorage.favoritesData = JSON.stringify(favorites);
+      this.setState({ favorites });
+    } catch (e) {
+      alert(`Error when stringifying favorites: ${e}`);
     }
-    localStorage.favoritesData = JSON.stringify(favorites);
-    this.setState({ favorites });
   };
 
   handleFavoriteFilter = showFavoritesOnly => {
     this.setState({ showFavoritesOnly });
   };
 
+  compare = (a, b) => {
+    const lastWordA = a.lastWord.toUpperCase();
+    const lastWordB = b.lastWord.toUpperCase();
+    if (lastWordA < lastWordB) {
+      return -1;
+    }
+    if (lastWordA > lastWordB) {
+      return 1;
+    }
+    return 0;
+  };
+
   handleSortAZ = () => {
     const { data } = this.state;
     const sortedData = data.sort((a, b) => {
-      const lastWordA = a.lastWord.toUpperCase();
-      const lastWordB = b.lastWord.toUpperCase();
-      if (lastWordA < lastWordB) {
-        return -1;
-      }
-      if (lastWordA > lastWordB) {
-        return 1;
-      }
-      return 0;
+      return this.compare(a, b);
     });
     this.setState({ data: sortedData });
   };
@@ -104,15 +130,7 @@ class App extends React.Component {
   handleSortZA = () => {
     const { data } = this.state;
     const sortedData = data.sort((a, b) => {
-      const lastWordA = a.lastWord.toUpperCase();
-      const lastWordB = b.lastWord.toUpperCase();
-      if (lastWordA < lastWordB) {
-        return 1;
-      }
-      if (lastWordA > lastWordB) {
-        return -1;
-      }
-      return 0;
+      return this.compare(b, a);
     });
     this.setState({ data: sortedData });
   };
@@ -120,10 +138,22 @@ class App extends React.Component {
   handleClearCache = () => {
     delete localStorage.catData;
     delete localStorage.favoritesData;
+    this.setState({ isLoading: true });
+    location.reload(true);
+  };
+
+  renderLoadingSpinner = () => {
+    return <FontAwesomeIcon icon={faSpinner} spin />;
   };
 
   render() {
-    const { data, favorites, selected, showFavoritesOnly } = this.state;
+    const {
+      data,
+      favorites,
+      isLoading,
+      selected,
+      showFavoritesOnly
+    } = this.state;
     return (
       <div className="app">
         <Navigation />
@@ -133,6 +163,7 @@ class App extends React.Component {
           onSortZA={this.handleSortZA}
           onClearCache={this.handleClearCache}
         />
+        {isLoading && this.renderLoadingSpinner()}
         <CatsContainer
           data={data}
           onCardClick={this.handleCardClick}

@@ -13,6 +13,7 @@
   opacity: 0.5;
   outline: none;
   transition: opacity 300ms;
+  text-align: left;
 }
 
 .card-selected {
